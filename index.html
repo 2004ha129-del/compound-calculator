@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="複利計算機 - 元利合計と積立計算をシミュレーション。現代的なUIで資産運用の計画をサポートします。">
+  <meta name="theme-color" content="#0f172a">
+  <title>複利計算機 | Compound Interest Calculator</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/index.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-main">
+        <h1>
+          <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          <span class="text-gradient">複利計算機</span>
+        </h1>
+
+        <div class="header-controls">
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" class="theme-toggle" aria-label="テーマ切替">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+
+          <!-- Global Currency Switcher -->
+          <div class="currency-switcher">
+            <button class="currency-btn active" data-currency="JPY">¥ JPY</button>
+            <button class="currency-btn" data-currency="USD">$ USD</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-container" role="tablist">
+      <button class="tab-button active" role="tab" aria-selected="true" data-tab="compound">
+        元利計算
+      </button>
+      <button class="tab-button" role="tab" aria-selected="false" data-tab="taxed">
+        積立計算
+      </button>
+    </nav>
+
+    <!-- ===== 元利計算 Tab Panel ===== -->
+    <section id="panel-compound" class="tab-panel active" role="tabpanel">
+      <!-- Input Card -->
+      <div class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          入力パラメータ
+        </h2>
+
+        <!-- 元金 -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>元金 (PV)</span>
+            <span class="form-label-value" id="principal-display">1,000,000<span class="currency-label">円</span></span>
+          </label>
+          <input type="range" class="form-slider" id="principal-slider" min="0" max="100000000" step="10000"
+            value="1000000">
+          <div class="input-with-unit">
+            <input type="number" class="form-input" id="principal-input" value="1000000" min="0" step="10000">
+            <span class="input-unit currency-label">円</span>
+          </div>
+        </div>
+
+        <!-- 年利 -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>年利</span>
+            <span class="form-label-value" id="rate-display">5.0%</span>
+          </label>
+          <input type="range" class="form-slider" id="rate-slider" min="0.01" max="20" step="0.01" value="5">
+          <div class="input-with-unit">
+            <input type="number" class="form-input" id="rate-input" value="5" min="0" step="0.1">
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+
+        <!-- 経過年数 -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>経過年数</span>
+            <span class="form-label-value" id="years-display">10年</span>
+          </label>
+          <input type="range" class="form-slider" id="years-slider" min="1" max="50" step="1" value="10">
+          <div class="input-with-unit">
+            <input type="number" class="form-input" id="years-input" value="10" min="1" max="100" step="1">
+            <span class="input-unit">年</span>
+          </div>
+        </div>
+
+        <!-- 複利周期 -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>複利周期</span>
+          </label>
+          <div class="segment-control" id="period-selector">
+            <button class="segment-button active" data-value="1">1年</button>
+            <button class="segment-button" data-value="2">半年</button>
+            <button class="segment-button" data-value="4">四半期</button>
+            <button class="segment-button" data-value="12">1ヶ月</button>
+          </div>
+        </div>
+
+        <!-- 金利タイプ -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>金利タイプ</span>
+            <span class="info-icon" title="表面金利: 名目金利。実質金利: 年間の実効金利">?</span>
+          </label>
+          <div class="segment-control" id="rate-type-selector">
+            <button class="segment-button active" data-value="nominal">表面金利</button>
+            <button class="segment-button" data-value="effective">実質金利</button>
+          </div>
+        </div>
+
+        <!-- 為替計算オプション (Compound Tab) -->
+        <div class="form-group fx-section">
+          <div class="toggle-container">
+            <span class="toggle-label">為替計算を含める (外貨投資)</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="compound-fx-enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div id="compound-fx-options" class="fx-options-grid hidden">
+            <div class="fx-option-item">
+              <label class="form-label">投資時のレート (円/$)</label>
+              <div class="input-with-unit">
+                <input type="number" class="form-input" id="compound-fx-rate-in" value="150" min="0.01" step="0.01">
+                <span class="input-unit">円</span>
+              </div>
+            </div>
+            <div class="fx-option-item">
+              <label class="form-label">引出時のレート (円/$)</label>
+              <div class="input-with-unit">
+                <input type="number" class="form-input" id="compound-fx-rate-out" value="150" min="0.01" step="0.01">
+                <span class="input-unit">円</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 税金計算オプション -->
+        <div class="form-group">
+          <div class="toggle-container">
+            <span class="toggle-label">税金計算を含める (20.315%)</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="include-tax">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Card -->
+      <div class="card result-card" id="result-compound">
+        <div class="result-main">
+          <p class="result-label">元利合計</p>
+          <p class="result-value">
+            <span id="result-total">1,628,895</span>
+            <span class="result-value-suffix currency-label">円</span>
+          </p>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-item">
+            <p class="result-item-label">利息合計</p>
+            <p class="result-item-value" id="result-interest">628,895<span class="currency-label">円</span></p>
+          </div>
+          <div class="result-item">
+            <p class="result-item-label">利回り</p>
+            <p class="result-item-value" id="result-yield">+62.89%</p>
+          </div>
+        </div>
+
+        <div id="tax-result" class="comparison-box hidden">
+          <span class="comparison-label">税引き後:</span>
+          <span class="comparison-value" id="result-after-tax">1,500,000<span class="currency-label">円</span></span>
+        </div>
+
+        <!-- Chart -->
+        <div class="chart-container">
+          <canvas id="chart-compound"></canvas>
+        </div>
+
+        <!-- Collapsible Table -->
+        <button class="collapsible-toggle" id="toggle-table">
+          <span>詳細テーブルを表示</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="collapsible-content" id="table-container">
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>年</th>
+                  <th>元金</th>
+                  <th>利息</th>
+                  <th>元利合計</th>
+                </tr>
+              </thead>
+              <tbody id="result-table-body">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 積立計算（複利毎課税） Tab Panel ===== -->
+    <section id="panel-taxed" class="tab-panel" role="tabpanel">
+      <!-- Input Card -->
+      <div class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <!-- Piggy bank / savings icon -->
+            <path
+              d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2h0V5z">
+            </path>
+            <path d="M2 9v1c0 1.1.9 2 2 2h1"></path>
+            <path d="M16 11h0.01"></path>
+          </svg>
+          積立パラメータ（課税モード）
+        </h2>
+
+        <!-- 元金 -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>初期元金</span>
+            <span class="form-label-value" id="taxed-principal-display">0<span
+                class="currency-label"></span>円</span></span>
+          </label>
+          <input type="range" class="form-slider" id="taxed-principal-slider" min="0" max="10000000" step="10000"
+            value="0">
+          <div class="input-with-unit">
+            <input type="number" class="form-input" id="taxed-principal-input" value="0" min="0" step="10000">
+            <span class="input-unit currency-label">円</span>
+          </div>
+        </div>
+
+        <!-- 毎月の積立額 -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>毎月の積立額</span>
+            <span class="form-label-value" id="taxed-installment-display">30,000<span
+                class="currency-label">円</span></span>
+          </label>
+          <input type="range" class="form-slider" id="taxed-installment-slider" min="0" max="1000000" step="1000"
+            value="30000">
+          <div class="input-with-unit">
+            <input type="number" class="form-input" id="taxed-installment-input" value="30000" min="0" step="1000">
+            <span class="input-unit currency-label">円</span>
+          </div>
+        </div>
+
+        <!-- 年利 -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>年利</span>
+            <span class="form-label-value" id="taxed-rate-display">3.00%</span>
+          </label>
+          <input type="range" class="form-slider" id="taxed-rate-slider" min="0.001" max="15" step="0.01" value="3">
+          <div class="input-with-unit">
+            <input type="number" class="form-input" id="taxed-rate-input" value="3" min="0" step="0.1">
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+
+        <!-- 経過年数 -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>積立期間</span>
+            <span class="form-label-value" id="taxed-years-display">20年</span>
+          </label>
+          <input type="range" class="form-slider" id="taxed-years-slider" min="1" max="50" step="1" value="20">
+          <div class="input-with-unit">
+            <input type="number" class="form-input" id="taxed-years-input" value="20" min="1" max="100" step="1">
+            <span class="input-unit">年</span>
+          </div>
+        </div>
+
+        <!-- 複利周期 -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>複利周期</span>
+          </label>
+          <div class="segment-control" id="taxed-period-selector">
+            <button class="segment-button active" data-value="1">1年</button>
+            <button class="segment-button" data-value="2">半年</button>
+            <button class="segment-button" data-value="4">四半期</button>
+            <button class="segment-button" data-value="12">1ヶ月</button>
+          </div>
+        </div>
+
+        <!-- 為替計算オプション -->
+        <div class="form-group fx-section">
+          <div class="toggle-container">
+            <span class="toggle-label">為替計算を含める (外貨投資)</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="taxed-fx-enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div id="fx-options" class="fx-options-grid hidden">
+            <div class="fx-option-item">
+              <label class="form-label">積立時のレート (円/$)</label>
+              <div class="input-with-unit">
+                <input type="number" class="form-input" id="taxed-fx-rate-in" value="150" min="0.01" step="0.01">
+                <span class="input-unit">円</span>
+              </div>
+            </div>
+            <div class="fx-option-item">
+              <label class="form-label">引出時のレート (円/$)</label>
+              <div class="input-with-unit">
+                <input type="number" class="form-input" id="taxed-fx-rate-out" value="150" min="0.01" step="0.01">
+                <span class="input-unit">円</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 税率 -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>税率</span>
+            <span class="info-icon" title="復興特別所得税込みの標準税率は20.315%">?</span>
+          </label>
+          <div class="input-with-unit">
+            <input type="number" class="form-input" id="taxed-tax-rate-input" value="20.315" min="0" max="100"
+              step="0.001">
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Card -->
+      <div class="card result-card" id="result-taxed">
+        <div class="result-main">
+          <p class="result-label">税引き後 元利合計</p>
+          <p class="result-value">
+            <span id="taxed-result-total">0</span>
+            <span class="result-value-suffix currency-label">円</span>
+          </p>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-item">
+            <p class="result-item-label">積立総額</p>
+            <p class="result-item-value" id="taxed-result-invested">0<span class="currency-label">円</span></p>
+          </div>
+          <div class="result-item">
+            <p class="result-item-label">税引き後 利息</p>
+            <p class="result-item-value" id="taxed-result-interest">0<span class="currency-label">円</span></p>
+          </div>
+          <div class="result-item">
+            <p class="result-item-label">総支払い税額</p>
+            <p class="result-item-value" id="taxed-result-tax">0<span class="currency-label">円</span></p>
+          </div>
+          <div class="result-item">
+            <p class="result-item-label">利回り（税後）</p>
+            <p class="result-item-value" id="taxed-result-yield">+0%</p>
+          </div>
+        </div>
+
+        <div class="comparison-box">
+          <span class="comparison-label">非課税の場合:</span>
+          <span class="comparison-value" id="taxed-result-comparison">0<span class="currency-label">円</span></span>
+        </div>
+
+        <!-- Chart -->
+        <div class="chart-container">
+          <canvas id="chart-taxed"></canvas>
+        </div>
+
+        <!-- Collapsible Table -->
+        <button class="collapsible-toggle" id="toggle-taxed-table">
+          <span>詳細テーブルを表示</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="collapsible-content" id="taxed-table-container">
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>年</th>
+                  <th>投資累計</th>
+                  <th>積立額</th>
+                  <th>利息</th>
+                  <th>税額</th>
+                  <th>元利合計</th>
+                </tr>
+              </thead>
+              <tbody id="taxed-result-table-body">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Scripts -->
+  <script src="scripts/calculator.js"></script>
+  <script src="scripts/chart.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+
+</html>
