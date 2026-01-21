@@ -1202,3 +1202,25 @@ html[data-theme="light"] .theme-toggle .icon-moon {
   color: white;
   border-color: transparent;
 }
+
+/* ========== Footer ========== */
+.footer {
+  margin-top: 60px;
+  padding: 40px 20px 80px;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.disclaimer {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.copyright {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}

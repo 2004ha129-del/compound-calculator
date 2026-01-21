@@ -94,7 +94,7 @@
             <span>元金 (PV)</span>
             <span class="form-label-value" id="principal-display">1,000,000<span class="currency-label">円</span></span>
           </label>
-          <input type="range" class="form-slider" id="principal-slider" min="0" max="100000000" step="10000"
+          <input type="range" class="form-slider" id="principal-slider" min="0" max="1000000000" step="10000"
             value="1000000">
           <div class="input-with-unit">
             <input type="number" class="form-input" id="principal-input" value="1000000" min="0" step="10000">
@@ -286,7 +286,7 @@
             <span class="form-label-value" id="taxed-principal-display">0<span
                 class="currency-label"></span>円</span></span>
           </label>
-          <input type="range" class="form-slider" id="taxed-principal-slider" min="0" max="10000000" step="10000"
+          <input type="range" class="form-slider" id="taxed-principal-slider" min="0" max="1000000000" step="10000"
             value="0">
           <div class="input-with-unit">
             <input type="number" class="form-input" id="taxed-principal-input" value="0" min="0" step="10000">
@@ -469,6 +469,15 @@
       </button>
     </section>
   </div>
+
+  <!-- Disclaimer Footer -->
+  <footer class="footer">
+    <p class="disclaimer">
+      ※本シミュレーションの結果は概算値であり、将来の運用成果を保証するものではありません。
+      <br>実際の投資には手数料や税金等の変動要因が含まれる場合があります。
+    </p>
+    <p class="copyright">© 2026 Compound Calculator</p>
+  </footer>
 
   <!-- Save Modal -->
   <div id="save-modal" class="modal hidden">
