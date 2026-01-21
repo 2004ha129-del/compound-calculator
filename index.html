@@ -219,6 +219,16 @@
           <span class="comparison-value" id="result-after-tax">1,500,000<span class="currency-label">円</span></span>
         </div>
 
+        <!-- Save Button -->
+        <button class="btn btn-save" id="save-compound-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+          この計算を保存
+        </button>
+
         <!-- Chart -->
         <div class="chart-container">
           <canvas id="chart-compound"></canvas>
@@ -414,6 +424,16 @@
           <span class="comparison-value" id="taxed-result-comparison">0<span class="currency-label">円</span></span>
         </div>
 
+        <!-- Save Button -->
+        <button class="btn btn-save" id="save-taxed-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+          この計算を保存
+        </button>
+
         <!-- Chart -->
         <div class="chart-container">
           <canvas id="chart-taxed"></canvas>
@@ -449,6 +469,42 @@
       </div>
     </section>
   </div>
+
+  <!-- Save Modal -->
+  <div id="save-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <h3 class="modal-title">計算結果を保存</h3>
+      <div class="form-group">
+        <label class="form-label">保存名</label>
+        <input type="text" class="form-input" id="save-name-input" placeholder="例: 老後資金シミュレーション">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="save-modal-cancel">キャンセル</button>
+        <button class="btn btn-primary" id="save-modal-confirm">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Panel -->
+  <div id="history-panel" class="history-panel hidden">
+    <div class="history-header">
+      <h3>保存済み計算</h3>
+      <button class="history-close" id="history-panel-close">×</button>
+    </div>
+    <div class="history-list" id="history-list">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- History Toggle Button (Fixed) -->
+  <button id="history-toggle" class="history-toggle-btn" aria-label="保存履歴を表示">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 8v4l3 3"></path>
+      <circle cx="12" cy="12" r="10"></circle>
+    </svg>
+    <span class="history-badge hidden" id="history-badge">0</span>
+  </button>
 
   <!-- Scripts -->
   <script src="scripts/calculator.js"></script>

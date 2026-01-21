@@ -403,4 +403,291 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== 初期計算実行 =====
     updateCompoundResult();
     updateTaxedResult();
+
+    // ===== 保存機能 =====
+    const STORAGE_KEY = 'compound_calculator_history';
+    const MAX_SAVED_ITEMS = 20;
+
+    let currentSaveType = null; // 'compound' or 'taxed'
+
+    // DOM Elements for save feature
+    const saveModal = document.getElementById('save-modal');
+    const saveModalBackdrop = saveModal.querySelector('.modal-backdrop');
+    const saveNameInput = document.getElementById('save-name-input');
+    const saveModalConfirm = document.getElementById('save-modal-confirm');
+    const saveModalCancel = document.getElementById('save-modal-cancel');
+    const saveCompoundBtn = document.getElementById('save-compound-btn');
+    const saveTaxedBtn = document.getElementById('save-taxed-btn');
+    const historyToggle = document.getElementById('history-toggle');
+    const historyPanel = document.getElementById('history-panel');
+    const historyPanelClose = document.getElementById('history-panel-close');
+    const historyList = document.getElementById('history-list');
+    const historyBadge = document.getElementById('history-badge');
+
+    // Get saved data from localStorage
+    function getSavedHistory() {
+        try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        } catch {
+            return [];
+        }
+    }
+
+    // Save data to localStorage
+    function saveToHistory(item) {
+        const history = getSavedHistory();
+        history.unshift(item);
+        if (history.length > MAX_SAVED_ITEMS) {
+            history.pop();
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        updateHistoryBadge();
+    }
+
+    // Delete item from history
+    function deleteFromHistory(id) {
+        const history = getSavedHistory().filter(item => item.id !== id);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        renderHistoryList();
+        updateHistoryBadge();
+    }
+
+    // Update badge count
+    function updateHistoryBadge() {
+        const count = getSavedHistory().length;
+        historyBadge.textContent = count;
+        historyBadge.classList.toggle('hidden', count === 0);
+    }
+
+    // Format date
+    function formatDate(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleDateString('ja-JP') + ' ' + date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Render history list
+    function renderHistoryList() {
+        const history = getSavedHistory();
+        if (history.length === 0) {
+            historyList.innerHTML = '<div class="history-empty">保存された計算はありません</div>';
+            return;
+        }
+
+        historyList.innerHTML = history.map(item => `
+            <div class="history-item" data-id="${item.id}">
+                <div class="history-item-header">
+                    <span class="history-item-name">${escapeHtml(item.name)}</span>
+                    <button class="history-item-delete" data-id="${item.id}" title="削除">×</button>
+                </div>
+                <div class="history-item-date">${formatDate(item.timestamp)}</div>
+                <div class="history-item-summary">
+                    ${item.type === 'compound' ? '元利計算' : '積立計算'} |
+                    <span class="history-item-result">${formatCurrency(item.result)}${getCurrencySymbol()}</span>
+                </div>
+            </div>
+        `).join('');
+
+        // Add click handlers
+        historyList.querySelectorAll('.history-item').forEach(el => {
+            el.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('history-item-delete')) {
+                    const id = el.dataset.id;
+                    loadFromHistory(id);
+                }
+            });
+        });
+
+        historyList.querySelectorAll('.history-item-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                deleteFromHistory(id);
+            });
+        });
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Get current state for saving
+    function getCurrentState(type) {
+        if (type === 'compound') {
+            return {
+                principal: compoundState.principal,
+                rate: compoundState.rate,
+                years: compoundState.years,
+                period: compoundState.period,
+                rateType: compoundState.rateType,
+                includeTax: compoundState.includeTax,
+                fxEnabled: compoundState.fxEnabled,
+                fxRateIn: compoundState.fxRateIn,
+                fxRateOut: compoundState.fxRateOut,
+                result: parseInt(document.getElementById('result-total').textContent.replace(/,/g, ''))
+            };
+        } else {
+            return {
+                principal: taxedState.principal,
+                installment: taxedState.installment,
+                rate: taxedState.rate,
+                years: taxedState.years,
+                period: taxedState.period,
+                taxRate: taxedState.taxRate,
+                fxEnabled: taxedState.fxEnabled,
+                fxRateIn: taxedState.fxRateIn,
+                fxRateOut: taxedState.fxRateOut,
+                result: parseInt(document.getElementById('taxed-result-total').textContent.replace(/,/g, ''))
+            };
+        }
+    }
+
+    // Load state from history
+    function loadFromHistory(id) {
+        const history = getSavedHistory();
+        const item = history.find(h => h.id === id);
+        if (!item) return;
+
+        if (item.type === 'compound') {
+            // Switch to compound tab
+            document.querySelector('[data-tab="compound"]').click();
+
+            // Restore state
+            principalSlider.value = item.state.principal;
+            principalInput.value = item.state.principal;
+            rateSlider.value = item.state.rate;
+            rateInput.value = item.state.rate;
+            yearsSlider.value = item.state.years;
+            yearsInput.value = item.state.years;
+
+            // Update displays
+            principalDisplay.textContent = formatCurrency(item.state.principal) + getCurrencySymbol();
+            rateDisplay.textContent = item.state.rate + '%';
+            yearsDisplay.textContent = item.state.years + '年';
+
+            // Update state
+            compoundState.principal = item.state.principal;
+            compoundState.rate = item.state.rate;
+            compoundState.years = item.state.years;
+            compoundState.period = item.state.period;
+            compoundState.rateType = item.state.rateType;
+            compoundState.includeTax = item.state.includeTax;
+            compoundState.fxEnabled = item.state.fxEnabled || false;
+            compoundState.fxRateIn = item.state.fxRateIn || 150;
+            compoundState.fxRateOut = item.state.fxRateOut || 150;
+
+            // Update segment buttons
+            periodSelector.querySelectorAll('.segment-button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.value === String(item.state.period));
+            });
+            rateTypeSelector.querySelectorAll('.segment-button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.value === item.state.rateType);
+            });
+            includeTaxCheckbox.checked = item.state.includeTax;
+
+            updateCompoundResult();
+        } else {
+            // Switch to taxed tab
+            document.querySelector('[data-tab="taxed"]').click();
+
+            // Restore state
+            taxedPrincipalSlider.value = item.state.principal;
+            taxedPrincipalInput.value = item.state.principal;
+            taxedInstallmentSlider.value = item.state.installment;
+            taxedInstallmentInput.value = item.state.installment;
+            taxedRateSlider.value = item.state.rate;
+            taxedRateInput.value = item.state.rate;
+            taxedYearsSlider.value = item.state.years;
+            taxedYearsInput.value = item.state.years;
+            taxedTaxRateInput.value = item.state.taxRate;
+
+            // Update displays
+            taxedPrincipalDisplay.textContent = formatCurrency(item.state.principal) + getCurrencySymbol();
+            taxedInstallmentDisplay.textContent = formatCurrency(item.state.installment) + getCurrencySymbol();
+            taxedRateDisplay.textContent = item.state.rate + '%';
+            taxedYearsDisplay.textContent = item.state.years + '年';
+
+            // Update state
+            taxedState.principal = item.state.principal;
+            taxedState.installment = item.state.installment;
+            taxedState.rate = item.state.rate;
+            taxedState.years = item.state.years;
+            taxedState.period = item.state.period;
+            taxedState.taxRate = item.state.taxRate;
+            taxedState.fxEnabled = item.state.fxEnabled || false;
+            taxedState.fxRateIn = item.state.fxRateIn || 150;
+            taxedState.fxRateOut = item.state.fxRateOut || 150;
+
+            // Update segment buttons
+            taxedPeriodSelector.querySelectorAll('.segment-button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.value === String(item.state.period));
+            });
+
+            updateTaxedResult();
+        }
+
+        // Close history panel
+        historyPanel.classList.add('hidden');
+    }
+
+    // Open save modal
+    function openSaveModal(type) {
+        currentSaveType = type;
+        saveNameInput.value = '';
+        saveModal.classList.remove('hidden');
+        saveNameInput.focus();
+    }
+
+    // Close save modal
+    function closeSaveModal() {
+        saveModal.classList.add('hidden');
+        currentSaveType = null;
+    }
+
+    // Confirm save
+    function confirmSave() {
+        const name = saveNameInput.value.trim() || (currentSaveType === 'compound' ? '元利計算' : '積立計算');
+        const state = getCurrentState(currentSaveType);
+
+        const item = {
+            id: Date.now().toString(),
+            name: name,
+            type: currentSaveType,
+            state: state,
+            result: state.result,
+            timestamp: Date.now()
+        };
+
+        saveToHistory(item);
+        closeSaveModal();
+        renderHistoryList();
+    }
+
+    // Event listeners for save feature
+    saveCompoundBtn.addEventListener('click', () => openSaveModal('compound'));
+    saveTaxedBtn.addEventListener('click', () => openSaveModal('taxed'));
+    saveModalConfirm.addEventListener('click', confirmSave);
+    saveModalCancel.addEventListener('click', closeSaveModal);
+    saveModalBackdrop.addEventListener('click', closeSaveModal);
+
+    saveNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') confirmSave();
+        if (e.key === 'Escape') closeSaveModal();
+    });
+
+    historyToggle.addEventListener('click', () => {
+        historyPanel.classList.toggle('hidden');
+        if (!historyPanel.classList.contains('hidden')) {
+            renderHistoryList();
+        }
+    });
+
+    historyPanelClose.addEventListener('click', () => {
+        historyPanel.classList.add('hidden');
+    });
+
+    // Initialize badge
+    updateHistoryBadge();
 });
