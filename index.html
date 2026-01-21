@@ -219,16 +219,6 @@
           <span class="comparison-value" id="result-after-tax">1,500,000<span class="currency-label">円</span></span>
         </div>
 
-        <!-- Save Button -->
-        <button class="btn btn-save" id="save-compound-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-            <polyline points="17 21 17 13 7 13 7 21"></polyline>
-            <polyline points="7 3 7 8 15 8"></polyline>
-          </svg>
-          この計算を保存
-        </button>
-
         <!-- Chart -->
         <div class="chart-container">
           <canvas id="chart-compound"></canvas>
@@ -260,6 +250,16 @@
           </div>
         </div>
       </div>
+
+      <!-- Save Button (Outside Card) -->
+      <button class="btn btn-save btn-save-standalone" id="save-compound-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+        この計算を保存
+      </button>
     </section>
 
     <!-- ===== 積立計算（複利毎課税） Tab Panel ===== -->
@@ -424,16 +424,6 @@
           <span class="comparison-value" id="taxed-result-comparison">0<span class="currency-label">円</span></span>
         </div>
 
-        <!-- Save Button -->
-        <button class="btn btn-save" id="save-taxed-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-            <polyline points="17 21 17 13 7 13 7 21"></polyline>
-            <polyline points="7 3 7 8 15 8"></polyline>
-          </svg>
-          この計算を保存
-        </button>
-
         <!-- Chart -->
         <div class="chart-container">
           <canvas id="chart-taxed"></canvas>
@@ -467,6 +457,16 @@
           </div>
         </div>
       </div>
+
+      <!-- Save Button (Outside Card) -->
+      <button class="btn btn-save btn-save-standalone" id="save-taxed-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+        この計算を保存
+      </button>
     </section>
   </div>
 

@@ -1183,3 +1183,22 @@ html[data-theme="light"] .theme-toggle .icon-moon {
   justify-content: center;
   padding: 0 6px;
 }
+
+/* ========== Standalone Save Button ========== */
+.btn-save-standalone {
+  margin-top: var(--spacing-lg);
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: 1rem;
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.btn-save-standalone:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg), 0 0 30px var(--primary-glow);
+  background: var(--gradient-primary);
+  color: white;
+  border-color: transparent;
+}
